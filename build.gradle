@@ -7,6 +7,13 @@ buildscript {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
     }
 }
+
+repositories {
+    maven {
+        url "https://repo.refinedmods.com"
+    }
+}
+
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
@@ -153,9 +160,6 @@ publishing {
     repositories {
         maven {
             url "file:///${project.projectDir}/mcmodsrepo"
-        }
-        maven {
-            url "https://repo.refinedmods.com"
         }
     }
 }
