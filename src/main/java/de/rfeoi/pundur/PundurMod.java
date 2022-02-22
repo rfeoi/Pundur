@@ -10,8 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 
 @Mod("pundur")
-public class PundurMod
-{
+public class PundurMod {
     // Directly reference a log4j logger.
     private static final Logger LOGGER = LogManager.getLogger();
 
