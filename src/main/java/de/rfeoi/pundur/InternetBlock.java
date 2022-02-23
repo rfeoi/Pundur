@@ -43,7 +43,7 @@ public class InternetBlock extends NetworkNodeBlock {
             if (internetNetworkNode != null && internetNetworkNode.internetId != null) {
                 player.sendMessage(new StringTextComponent(internetNetworkNode.internetId), UUID.randomUUID());
             } else {
-                player.sendMessage(new StringTextComponent("Please replace block."), UUID.randomUUID());
+                player.sendMessage(new StringTextComponent("Please connect to storage system."), UUID.randomUUID());
             }
         }
         return ActionResultType.SUCCESS;

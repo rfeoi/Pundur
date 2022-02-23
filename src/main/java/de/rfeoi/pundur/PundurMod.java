@@ -5,14 +5,14 @@ import com.refinedmods.refinedstorage.api.IRSAPI;
 import com.refinedmods.refinedstorage.api.RSAPIInject;
 import com.refinedmods.refinedstorage.api.autocrafting.task.ICraftingTask;
 import com.refinedmods.refinedstorage.api.network.INetwork;
-import com.refinedmods.refinedstorage.block.GridBlock;
+import com.refinedmods.refinedstorage.api.storage.IStorage;
 import com.refinedmods.refinedstorage.util.NetworkUtils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import jdk.nashorn.internal.ir.debug.JSONWriter;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -87,12 +87,25 @@ public class PundurMod {
             if (internetCodes.containsKey(internetCode)) {
                 INetwork network = NetworkUtils.getNetworkFromNode(internetCodes.get(internetCode));
                 if (network != null) {
+                    String items = "[";
+                    for (IStorage<ItemStack> storage : network.getItemStorageCache().getStorages()) {
+                        for (ItemStack item : storage.getStacks()) {
+                            items += "{" +
+                                    "\"name\": \"" + item.getDisplayName().getString() + "\"," +
+                                    "\"item\": \"" + item.getItem().getRegistryName().toString() + "\"," +
+                                    "\"count\": " + item.getCount() +
+                                    "},";
+                        }
+                    }
+                    if (!items.equals("[")) items = items.substring(0, items.length() - 1);
+                    items += "]";
                     String craftingsTasks = "[";
                     for (ICraftingTask task : network.getCraftingManager().getTasks()) {
                         craftingsTasks += "{" +
-                                "\"what\": \"" + task.getRequested().getItem().getItem().getRegistryName().getPath() + "\"," +
-                                "\"percentage\": " + task.getCompletionPercentage() + "}";
+                                "\"item\": \"" + task.getRequested().getItem().getItem().getRegistryName().toString() + "\"," +
+                                "\"percentage\": " + task.getCompletionPercentage() + "},";
                     }
+                    if (!craftingsTasks.equals("[")) craftingsTasks = craftingsTasks.substring(0, craftingsTasks.length() - 1);
                     craftingsTasks += "]";
                     sendReponse(t, "{" +
                             "\"energyStorage\": " + network.getEnergyStorage().getMaxEnergyStored() + "," +
@@ -101,7 +114,8 @@ public class PundurMod {
                             "\"posX\": " + network.getPosition().getX() + "," +
                             "\"posY\": " + network.getPosition().getY() + "," +
                             "\"posZ\": " + network.getPosition().getZ() + "," +
-                            "\"craftingTasks\": " + craftingsTasks +
+                            "\"craftingTasks\": " + craftingsTasks + "," +
+                            "\"items\": " + items +
                             "}", 200);
                 } else {
                     sendReponse(t,"{\"error\": \"Can not access Network! Is the system chunk-loaded?\"}", 500);
