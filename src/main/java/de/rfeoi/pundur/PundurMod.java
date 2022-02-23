@@ -3,6 +3,7 @@ package de.rfeoi.pundur;
 import com.refinedmods.refinedstorage.RS;
 import com.refinedmods.refinedstorage.api.IRSAPI;
 import com.refinedmods.refinedstorage.api.RSAPIInject;
+import com.refinedmods.refinedstorage.block.GridBlock;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
