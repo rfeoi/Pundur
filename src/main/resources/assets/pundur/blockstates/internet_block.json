@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "direction=west": { "model": "pundur:block/internet_block" },
+    "direction=south": { "model": "pundur:block/internet_block" },
+    "direction=north": { "model": "pundur:block/internet_block" },
+    "direction=east": { "model": "pundur:block/internet_block" }
+  }
+}
