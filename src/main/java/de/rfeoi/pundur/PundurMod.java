@@ -3,11 +3,18 @@ package de.rfeoi.pundur;
 import com.refinedmods.refinedstorage.RS;
 import com.refinedmods.refinedstorage.api.IRSAPI;
 import com.refinedmods.refinedstorage.api.RSAPIInject;
+import com.refinedmods.refinedstorage.api.autocrafting.task.ICraftingTask;
+import com.refinedmods.refinedstorage.api.network.INetwork;
 import com.refinedmods.refinedstorage.block.GridBlock;
+import com.refinedmods.refinedstorage.util.NetworkUtils;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+import jdk.nashorn.internal.ir.debug.JSONWriter;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
@@ -18,6 +25,11 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.util.HashMap;
 
 
 @Mod("pundur")
@@ -33,6 +45,8 @@ public class PundurMod {
     private static final RegistryObject<Item> INTERNET_BLOCK_ITEM = ITEMS.register("internet_block", () -> new BlockItem(INTERNET_BLOCK.get(), new Item.Properties().tab(RS.MAIN_GROUP)));
     public static final RegistryObject<TileEntityType<InternetBlockTileEntity>> INTERNET_BLOCK_TILE = TILES.register("internet_block", () -> TileEntityType.Builder.of(InternetBlockTileEntity::new, INTERNET_BLOCK.get()).build(null));
 
+    public static final HashMap<String, InternetNetworkNode> internetCodes = new HashMap<>();
+
     @RSAPIInject
     public static IRSAPI RSAPI;
 
@@ -41,6 +55,7 @@ public class PundurMod {
         ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
         TILES.register(FMLJavaModLoadingContext.get().getModEventBus());
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+        MinecraftForge.EVENT_BUS.addListener(this::onServerStarting);
     }
 
     private void setup(final FMLCommonSetupEvent event)
@@ -56,5 +71,54 @@ public class PundurMod {
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
         LOGGER.info("Pundur is getting ready!");
+        try {
+            startPundurServer();
+            System.out.println("Started Pundur Web Server on Port 8080");
+        } catch (IOException e) {
+            LOGGER.error("Can not start Pundur Web Server");
+            e.printStackTrace();
+        }
+    }
+
+    private void startPundurServer() throws IOException {
+        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+        server.createContext("/", (t) -> {
+            String internetCode = t.getRequestHeaders().getFirst("X-Internet-Code");
+            if (internetCodes.containsKey(internetCode)) {
+                INetwork network = NetworkUtils.getNetworkFromNode(internetCodes.get(internetCode));
+                if (network != null) {
+                    String craftingsTasks = "[";
+                    for (ICraftingTask task : network.getCraftingManager().getTasks()) {
+                        craftingsTasks += "{" +
+                                "\"what\": \"" + task.getRequested().getItem().getItem().getRegistryName().getPath() + "\"," +
+                                "\"percentage\": " + task.getCompletionPercentage() + "}";
+                    }
+                    craftingsTasks += "]";
+                    sendReponse(t, "{" +
+                            "\"energyStorage\": " + network.getEnergyStorage().getMaxEnergyStored() + "," +
+                            "\"energyStored\": " + network.getEnergyStorage().getEnergyStored() + "," +
+                            "\"energyUsage\": " + network.getEnergyUsage() + "," +
+                            "\"posX\": " + network.getPosition().getX() + "," +
+                            "\"posY\": " + network.getPosition().getY() + "," +
+                            "\"posZ\": " + network.getPosition().getZ() + "," +
+                            "\"craftingTasks\": " + craftingsTasks +
+                            "}", 200);
+                } else {
+                    sendReponse(t,"{\"error\": \"Can not access Network! Is the system chunk-loaded?\"}", 500);
+                }
+            } else {
+                sendReponse(t,"{\"error\": \"Can not find a system under specified code\"}", 401);
+            }
+        });
+        server.setExecutor(null);
+        server.start();
+    }
+
+    private void sendReponse(HttpExchange t, String response, int code) throws IOException {
+        t.getResponseHeaders().set("Content-Type", "application/json");
+        t.sendResponseHeaders(code, response.length());
+        OutputStream os = t.getResponseBody();
+        os.write(response.getBytes());
+        os.close();
     }
 }
