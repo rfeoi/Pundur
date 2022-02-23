@@ -25,6 +25,6 @@ public class PundurMod {
 
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
-        LOGGER.info("HELLO from server starting");
+        LOGGER.info("Pundur is getting ready!");
     }
 }
