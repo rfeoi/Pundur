@@ -2,19 +2,27 @@
   "type": "minecraft:crafting_shaped",
   "pattern":
   [
-    "xxx",
-    "xax",
-    "xxx"
+    "qwq",
+    "qxq",
+    "qpq"
   ],
   "key":
   {
     "x":
     {
-      "tag": "minecraft:iron_ingot"
+      "item": "refinedstorage:grid"
     },
-    "a":
+    "w":
     {
-      "tag": "minecraft:diamond"
+      "item": "refinedstorage:wireless_transmitter"
+    },
+    "q":
+    {
+      "item": "refinedstorage:quartz_enriched_iron"
+    },
+    "p":
+    {
+      "item": "refinedstorage:basic_processor"
     }
   },
   "result":
