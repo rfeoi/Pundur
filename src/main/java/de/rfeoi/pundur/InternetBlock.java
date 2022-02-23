@@ -41,7 +41,7 @@ public class InternetBlock extends NetworkNodeBlock {
         if (!world.isClientSide) {
             InternetNetworkNode internetNetworkNode = (InternetNetworkNode) NetworkUtils.getNodeFromTile(world.getBlockEntity(pos));
             if (internetNetworkNode != null && internetNetworkNode.internetId != null) {
-                player.sendMessage(new StringTextComponent(internetNetworkNode.internetId), UUID.randomUUID());
+                player.sendMessage(new StringTextComponent("Code: " + internetNetworkNode.internetId), UUID.randomUUID());
             } else {
                 player.sendMessage(new StringTextComponent("Please connect to storage system."), UUID.randomUUID());
             }
