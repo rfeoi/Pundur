@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    "xxx",
+    "xax",
+    "xxx"
+  ],
+  "key":
+  {
+    "x":
+    {
+      "tag": "minecraft:iron_ingot"
+    },
+    "a":
+    {
+      "tag": "minecraft:diamond"
+    }
+  },
+  "result":
+  {
+    "item": "pundur:internet_block",
+    "count": 1
+  }
+}
