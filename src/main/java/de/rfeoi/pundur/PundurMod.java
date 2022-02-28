@@ -87,36 +87,8 @@ public class PundurMod {
             if (internetCodes.containsKey(internetCode)) {
                 INetwork network = NetworkUtils.getNetworkFromNode(internetCodes.get(internetCode));
                 if (network != null) {
-                    String items = "[";
-                    for (IStorage<ItemStack> storage : network.getItemStorageCache().getStorages()) {
-                        for (ItemStack item : storage.getStacks()) {
-                            items += "{" +
-                                    "\"name\": \"" + item.getDisplayName().getString() + "\"," +
-                                    "\"item\": \"" + item.getItem().getRegistryName().toString() + "\"," +
-                                    "\"count\": " + item.getCount() +
-                                    "},";
-                        }
-                    }
-                    if (!items.equals("[")) items = items.substring(0, items.length() - 1);
-                    items += "]";
-                    String craftingsTasks = "[";
-                    for (ICraftingTask task : network.getCraftingManager().getTasks()) {
-                        craftingsTasks += "{" +
-                                "\"item\": \"" + task.getRequested().getItem().getItem().getRegistryName().toString() + "\"," +
-                                "\"percentage\": " + task.getCompletionPercentage() + "},";
-                    }
-                    if (!craftingsTasks.equals("[")) craftingsTasks = craftingsTasks.substring(0, craftingsTasks.length() - 1);
-                    craftingsTasks += "]";
-                    sendReponse(t, "{" +
-                            "\"energyStorage\": " + network.getEnergyStorage().getMaxEnergyStored() + "," +
-                            "\"energyStored\": " + network.getEnergyStorage().getEnergyStored() + "," +
-                            "\"energyUsage\": " + network.getEnergyUsage() + "," +
-                            "\"posX\": " + network.getPosition().getX() + "," +
-                            "\"posY\": " + network.getPosition().getY() + "," +
-                            "\"posZ\": " + network.getPosition().getZ() + "," +
-                            "\"craftingTasks\": " + craftingsTasks + "," +
-                            "\"items\": " + items +
-                            "}", 200);
+                    RSResponseFactory factory = new RSResponseFactory(network);
+                    sendReponse(t, factory.make(), 200);
                 } else {
                     sendReponse(t,"{\"error\": \"Can not access Network! Is the system chunk-loaded?\"}", 500);
                 }
