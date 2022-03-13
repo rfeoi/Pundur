@@ -15,7 +15,7 @@ public class Config
             builder.push("webserver");
             this.port = builder.comment("This defines the port the internal web server will run on. This is only relevant on server side. Default is 8000")
                     .worldRestart()
-                    .defineInRange("Short but readable name", 8000, 1, 65535);
+                    .defineInRange("port", 8000, 1, 65535);
             builder.pop();
         }
     }

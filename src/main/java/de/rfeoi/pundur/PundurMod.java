@@ -73,7 +73,7 @@ public class PundurMod {
         LOGGER.info("Pundur is getting ready!");
         try {
             startPundurServer();
-            System.out.println("Started Pundur Web Server on Port 8080");
+            System.out.println("Started Pundur Web Server on Port " + Config.SERVER.port.get());
         } catch (IOException e) {
             LOGGER.error("Can not start Pundur Web Server");
             e.printStackTrace();
