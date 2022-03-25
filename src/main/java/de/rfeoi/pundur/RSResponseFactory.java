@@ -1,5 +1,6 @@
 package de.rfeoi.pundur;
 
+import com.refinedmods.refinedstorage.api.autocrafting.ICraftingPattern;
 import com.refinedmods.refinedstorage.api.autocrafting.task.ICraftingTask;
 import com.refinedmods.refinedstorage.api.network.INetwork;
 import com.refinedmods.refinedstorage.api.storage.IStorage;
@@ -8,6 +9,8 @@ import net.minecraft.item.ItemStack;
 /*
   I have no Idea how to do factories.
   But I heard Java people love them!
+  And yes I know I should not build JSON
+  by hand.
  */
 public class RSResponseFactory {
 
@@ -45,6 +48,16 @@ public class RSResponseFactory {
         return craftingsTasks;
     }
 
+    private String getCraftable() {
+        String cratable = "[";
+        for (ICraftingPattern craftable : network.getCraftingManager().getPatterns()) {
+            cratable += "{" + "\"item\": \"" + craftable.getOutputs().get(0).getItem().getItem().getRegistryName().toString() + "\"},";
+        }
+        if (!cratable.equals("[")) cratable = cratable.substring(0, cratable.length() - 1);
+        cratable += "]";
+        return cratable;
+    }
+
     public String make() {
         return "{" +
                 "\"energyStorage\": " + network.getEnergyStorage().getMaxEnergyStored() + "," +
@@ -54,7 +67,8 @@ public class RSResponseFactory {
                 "\"posY\": " + network.getPosition().getY() + "," +
                 "\"posZ\": " + network.getPosition().getZ() + "," +
                 "\"craftingTasks\": " + getCraftingStatusString() + "," +
-                "\"items\": " + getItemsString() +
+                "\"items\": " + getItemsString() + "," +
+                "\"craftable\": " + getCraftable() +
                 "}";
     }
 }
